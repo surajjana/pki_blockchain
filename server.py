@@ -1,5 +1,6 @@
 import hashlib
 import json
+import requests
 from time import time
 from uuid import uuid4
 from textwrap import dedent
@@ -15,7 +16,7 @@ app = Flask(__name__)
 
 node_identifier = str(uuid4()).replace('-', '')
 
-print(node_identifier)
+print("Node ID: ", node_identifier)
 
 # Blockchain initiation
 blockchain = Blockchain()
@@ -61,13 +62,18 @@ def full_chain():
     }
     return jsonify(response), 200
 
-@app.route('/nodes/register', methods=['POST'])
+@app.route('/nodes/register')
 def register_nodes():
-    values = request.get_json()
+    # values = request.get_json()
 
-    nodes = values.get('nodes')
-    if nodes is None:
-        return "Error: Please supply a valid list of nodes", 400
+    # nodes = values.get('nodes')
+    # if nodes is None:
+    #     return "Error: Please supply a valid list of nodes", 400
+
+    nodes = request.args.get('nodes')
+    nodes = json.loads(nodes)['nodes']
+
+    # print(nodes)
 
     for node in nodes:
         blockchain.register_node(node)
@@ -77,6 +83,8 @@ def register_nodes():
         'total_nodes': list(blockchain.nodes),
     }
     return jsonify(response), 201
+
+    # return "ok"
 
 
 @app.route('/nodes/resolve', methods=['GET'])
